@@ -110,6 +110,21 @@
   - name: Copy join command to local file
     local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
 
+  - name: Install Pip3  binaries
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+        - python3-pip
+
+  - name: Download the kubernetes package for python3
+    command: yes | pip3 install kubernetes
+
+  - name: Run the Pods.py script to validade the Kubernets Instalation
+    command: python3 /vagrant/pods.py
+                  
   handlers:
     - name: docker status
       service: name=docker state=started
