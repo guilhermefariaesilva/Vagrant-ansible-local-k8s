@@ -15,6 +15,21 @@
       - gnupg-agent
       - software-properties-common
 
+  - name: Install Pip and Pip3 pakages
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - python-pip
+      - python3-pip
+
+  - name: Download the kubernetes package for python3
+    pip:
+      name: kubernetes
+      executable: pip3
+
   - name: Add an apt signing key for Docker
     apt_key:
       url: https://download.docker.com/linux/ubuntu/gpg
@@ -37,6 +52,7 @@
       - containerd.io
     notify:
       - docker status
+
 
   - name: Add vagrant user to docker group
     user:
@@ -110,21 +126,12 @@
   - name: Copy join command to local file
     local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
 
-  - name: Install Pip3  binaries
-    apt:
-      name: "{{ packages }}"
-      state: present
-      update_cache: yes
-    vars:
-      packages:
-        - python3-pip
 
-  - name: Download the kubernetes package for python3
-    command: yes | pip3 install kubernetes
+
 
   - name: Run the Pods.py script to validade the Kubernets Instalation
     command: python3 /vagrant/pods.py
-                  
+
   handlers:
     - name: docker status
       service: name=docker state=started
